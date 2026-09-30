@@ -1,0 +1,4 @@
+metric,result
+Keyword Retrieval Accuracy,92.5%
+RAG Retrieval Accuracy,100.0%
+RAG Final Answer Score,97.5%

@@ -1,0 +1,41 @@
+id,category,question,ground_truth,keyword_document,keyword_score
+1,Leave,How many days of annual leave do full-time employees receive?,18 days per year,Annual_Leave_Policy.txt,8
+2,Leave,How early should employees submit an annual leave request?,At least 3 working days before the planned leave date,Annual_Leave_Policy.txt,7
+3,Leave,How many unused annual leave days can be carried forward?,Up to 5 days,Annual_Leave_Policy.txt,6
+4,Leave,Does annual leave require approval?,"Yes, it is subject to manager approval and business needs",Annual_Leave_Policy.txt,3
+5,Leave,What happens to unused annual leave above the carry-forward limit?,It expires at the end of the year,Annual_Leave_Policy.txt,9
+6,Benefits,How much can employees claim for dental expenses each year?,Up to SGD 500 per year,Employee_Benefits_Guide.txt,8
+7,Benefits,Does the company provide annual health screening?,"Yes, one basic health screening each year",Employee_Benefits_Guide.txt,5
+8,Benefits,How much is the wellness allowance?,Up to SGD 300 per year,Employee_Benefits_Guide.txt,3
+9,IT,What should employees do if they forget their password?,Use the self-service password reset portal,IT_Support_Guide.txt,7
+10,IT,When is the IT Help Desk available?,"Monday to Friday, 9:00 AM to 6:00 PM",IT_Support_Guide.txt,6
+11,IT,What should employees do if the password reset portal does not work?,Contact the IT Help Desk,IT_Support_Guide.txt,11
+12,IT,When will new employees receive their company email account?,On their first working day,IT_Support_Guide.txt,8
+13,IT,What information should employees provide when reporting a laptop problem?,Employee ID and device number,IT_Support_Guide.txt,6
+14,IT,Can employees install any software they want on company devices?,"No, unapproved software should not be installed",IT_Support_Guide.txt,7
+15,IT,What should employees do if they need special software for work?,Submit a request to the IT Help Desk,IT_Support_Guide.txt,8
+16,IT,Should employees share their company password with colleagues?,"No, passwords should not be shared",IT_Support_Guide.txt,7
+17,IT,Where should suspicious emails be reported?,The IT Security Team,IT_Support_Guide.txt,4
+18,Benefits,Are full-time employees covered by medical insurance?,"Yes, from their first day of employment",Employee_Benefits_Guide.txt,8
+19,Benefits,Can employees receive medical coverage for dependants?,"Yes, subject to the company insurance plan",Employee_Benefits_Guide.txt,7
+20,Benefits,Who should employees contact about benefit questions?,The HR Benefits Team,Employee_Benefits_Guide.txt,7
+21,Leave,Do new employees get the full 18 days of annual leave immediately?,"No, annual leave is provided on a pro-rated basis",Annual_Leave_Policy.txt,9
+22,Leave,Can employees carry forward 10 unused leave days?,"No, only up to 5 days can be carried forward",Annual_Leave_Policy.txt,6
+23,Leave,Can an employee take annual leave without manager approval?,"No, annual leave is subject to manager approval",Annual_Leave_Policy.txt,6
+24,Leave,What happens if I do not use my extra leave days before year end?,Unused leave above the 5-day carry-forward limit expires,Annual_Leave_Policy.txt,7
+25,Benefits,Is dental treatment fully unlimited under the company benefit plan?,"No, eligible dental claims are limited to SGD 500 per year",Employee_Benefits_Guide.txt,5
+26,Benefits,Can I use the wellness allowance for a gym membership?,"Yes, approved gym memberships are included",Employee_Benefits_Guide.txt,9
+27,Benefits,How many health screenings does the company provide each year?,One basic health screening per year,Employee_Benefits_Guide.txt,6
+28,Benefits,When does medical insurance coverage start for a full-time employee?,From the first day of employment,Employee_Benefits_Guide.txt,8
+29,IT,Can I install personal software on my company laptop?,"No, unapproved software should not be installed",IT_Support_Guide.txt,6
+30,IT,Who should I contact if my company laptop is not working?,The IT Help Desk,IT_Support_Guide.txt,10
+31,Leave,How much holiday can I take each year?,18 days of paid annual leave per year,Employee_Benefits_Guide.txt,4
+32,Leave,Can I save some holiday for next year?,"Yes, up to 5 unused annual leave days can be carried forward",Employee_Benefits_Guide.txt,4
+33,Leave,I joined the company halfway through the year. Do I still get 18 days?,"No, annual leave is calculated on a pro-rated basis",IT_Support_Guide.txt,7
+34,Benefits,Can the company pay for my fitness class?,"Yes, approved fitness classes can be claimed under the wellness allowance up to SGD 300 per year",Employee_Benefits_Guide.txt,6
+35,Benefits,Does my medical insurance start immediately when I join?,"Yes, full-time employees are covered from their first day of employment",Employee_Benefits_Guide.txt,3
+36,Benefits,How much money can I claim for dental care?,Up to SGD 500 per year,Employee_Benefits_Guide.txt,5
+37,IT,I forgot my login password. What should I do?,Use the self-service password reset portal,IT_Support_Guide.txt,5
+38,IT,My laptop has stopped working. What information should I give IT?,Your employee ID and device number,IT_Support_Guide.txt,5
+39,IT,I received a suspicious email. Who should I tell?,Report it to the IT Security Team,IT_Support_Guide.txt,7
+40,IT,I need a new software tool for my job. Can I install it myself?,"No, submit a request to the IT Help Desk",IT_Support_Guide.txt,8

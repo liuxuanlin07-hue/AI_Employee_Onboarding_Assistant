@@ -1,0 +1,29 @@
+IT Support Guide
+
+1. Password Reset
+
+Employees who forget their company password should use the self-service password reset portal.
+
+2. IT Help Desk
+
+If the password reset portal does not work, employees should contact the IT Help Desk.
+
+The IT Help Desk is available from Monday to Friday, 9:00 AM to 6:00 PM.
+
+3. Email Access
+
+New employees will receive their company email account on their first working day.
+
+4. Laptop Support
+
+Employees who have problems with their company laptop should contact the IT Help Desk and provide their employee ID and device number.
+
+5. Software Installation
+
+Employees should not install unapproved software on company devices.
+
+If special software is required for work, employees should submit a request to the IT Help Desk.
+
+6. Cybersecurity
+
+Employees should not share passwords with other people and should report suspicious emails to the IT Security Team.
