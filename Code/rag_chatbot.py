@@ -1,15 +1,58 @@
+"""
+RAG Answer Generation and Evaluation Module
+
+Purpose:
+    This module runs the full RAG question-answering pipeline across
+    the fixed evaluation dataset.
+
+Main responsibilities:
+    - Load HR source documents
+    - Create document embeddings
+    - Build a FAISS retrieval index
+    - Retrieve the most relevant HR document
+    - Generate grounded answers using an LLM through OpenRouter
+    - Save final answers and their source documents
+
+Input:
+    - HR documents stored in the HR_Documents folder
+    - Evaluation/questions.csv
+
+Output:
+    - Evaluation/rag_answers.csv
+
+Safety:
+    The model is instructed to answer only from the retrieved HR
+    document and to escalate unsupported questions to Human HR.
+"""
+
 import os
 import numpy as np
 import pandas as pd
 import faiss
 from openai import OpenAI
 
-DOC_FOLDER = "../HR_Documents"
-QUESTION_FILE = "../Evaluation/questions.csv"
-OUTPUT_FILE = "../Evaluation/rag_answers.csv"
+
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+DOC_FOLDER = os.path.join(BASE_DIR, "HR_Documents")
+QUESTION_FILE = os.path.join(BASE_DIR, "Evaluation", "questions.csv")
+OUTPUT_FILE = os.path.join(
+    BASE_DIR,
+    "Evaluation",
+    "rag_answers.csv"
+)
+
+
+OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")
+
+if not OPENROUTER_API_KEY:
+    raise ValueError(
+        "OPENROUTER_API_KEY is not set. "
+        "Please set the environment variable before running this script."
+    )
+
 
 client = OpenAI(
-    api_key=os.getenv("OPENROUTER_API_KEY"),
+    api_key=OPENROUTER_API_KEY,
     base_url="https://openrouter.ai/api/v1"
 )
 
@@ -17,17 +60,19 @@ client = OpenAI(
 def load_documents():
     documents = []
 
-    for filename in os.listdir(DOC_FOLDER):
+    for filename in sorted(os.listdir(DOC_FOLDER)):
         if filename.endswith(".txt"):
             path = os.path.join(DOC_FOLDER, filename)
 
             with open(path, "r", encoding="utf-8") as file:
                 text = file.read()
 
-            documents.append({
-                "filename": filename,
-                "text": text
-            })
+            documents.append(
+                {
+                    "filename": filename,
+                    "text": text
+                }
+            )
 
     return documents
 
@@ -45,10 +90,13 @@ def build_index(documents):
     embeddings = []
 
     for document in documents:
-        embedding = get_embedding(document["text"])
-        embeddings.append(embedding)
+        embeddings.append(
+            get_embedding(document["text"])
+        )
 
-    embeddings = np.array(embeddings).astype("float32")
+    embeddings = np.array(
+        embeddings
+    ).astype("float32")
 
     dimension = embeddings.shape[1]
 
@@ -58,85 +106,122 @@ def build_index(documents):
     return index
 
 
-def retrieve_document(query, documents, index):
-    query_embedding = get_embedding(query)
-    query_vector = np.array([query_embedding]).astype("float32")
+def retrieve_document(question, documents, index):
+    question_embedding = get_embedding(question)
 
-    distances, indices = index.search(query_vector, 1)
+    question_embedding = np.array(
+        [question_embedding]
+    ).astype("float32")
 
-    best_index = indices[0][0]
+    distances, indices = index.search(
+        question_embedding,
+        1
+    )
 
-    return documents[best_index]
+    document_index = int(indices[0][0])
+
+    return documents[document_index]
 
 
-def generate_answer(query, document):
+def generate_answer(question, document):
     prompt = f"""
-You are an HR onboarding assistant.
+You are an AI Employee Onboarding Assistant.
 
-Answer the employee's question using ONLY the HR document below.
+Answer the employee question using ONLY the HR document provided below.
 
-If the document does not contain enough information, say:
-"I cannot find enough information in the available HR documents. Please contact HR."
+Rules:
+1. Do not use outside knowledge.
+2. Do not invent company policies.
+3. Keep the answer short and clear.
+4. If the document does not contain enough information to answer the
+   question, respond exactly with:
 
-Keep the answer short and clear.
+I cannot find enough information in the available HR documents. Please contact HR.
 
-HR Document:
+HR DOCUMENT:
 {document["text"]}
 
-Employee Question:
-{query}
+EMPLOYEE QUESTION:
+{question}
 """
 
     response = client.chat.completions.create(
         model="openai/gpt-4o-mini",
         messages=[
             {
+                "role": "system",
+                "content": (
+                    "You answer employee onboarding questions using "
+                    "only the supplied HR document."
+                )
+            },
+            {
                 "role": "user",
                 "content": prompt
             }
-        ]
+        ],
+        temperature=0
     )
 
-    return response.choices[0].message.content
+    return response.choices[0].message.content.strip()
 
 
-documents = load_documents()
+def main():
+    print("Preparing HR knowledge base...")
 
-print("Preparing HR knowledge base...")
+    documents = load_documents()
+    index = build_index(documents)
 
-index = build_index(documents)
+    questions = pd.read_csv(QUESTION_FILE)
 
-questions = pd.read_csv(QUESTION_FILE)
+    print(
+        f"Running {len(questions)} questions "
+        "through the RAG chatbot..."
+    )
 
-results = []
+    results = []
 
-print("Running 40 questions through the RAG chatbot...")
+    for _, row in questions.iterrows():
+        document = retrieve_document(
+            row["question"],
+            documents,
+            index
+        )
 
-for _, row in questions.iterrows():
-    question = row["question"]
+        answer = generate_answer(
+            row["question"],
+            document
+        )
 
-    document = retrieve_document(question, documents, index)
+        results.append(
+            {
+                "id": row["id"],
+                "category": row["category"],
+                "question": row["question"],
+                "ground_truth": row["ground_truth"],
+                "rag_answer": answer,
+                "source": document["filename"]
+            }
+        )
 
-    answer = generate_answer(question, document)
+        print(
+            f"Completed question {row['id']}"
+        )
 
-    results.append({
-        "id": row["id"],
-        "category": row["category"],
-        "question": question,
-        "ground_truth": row["ground_truth"],
-        "rag_answer": answer,
-        "source": document["filename"]
-    })
+    result_df = pd.DataFrame(results)
+    result_df.to_csv(
+        OUTPUT_FILE,
+        index=False
+    )
 
-    print(f"Completed question {row['id']}")
+    print()
+    print("RAG answer evaluation file created.")
+    print(f"Total questions: {len(result_df)}")
+    print(f"Results saved to: {OUTPUT_FILE}")
+    print()
+    print("First 5 results:")
+    print(result_df.head())
 
-results_df = pd.DataFrame(results)
 
-results_df.to_csv(OUTPUT_FILE, index=False)
-
-print("\nRAG answer evaluation file created.")
-print(f"Total questions: {len(results_df)}")
-print(f"Results saved to: {OUTPUT_FILE}")
-
-print("\nFirst 5 results:")
-print(results_df.head())
+if __name__ == "__main__":
+    main()

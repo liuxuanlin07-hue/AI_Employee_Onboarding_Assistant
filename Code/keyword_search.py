@@ -1,45 +1,86 @@
+"""
+Keyword Search Baseline Module
+
+Purpose:
+    This module implements the keyword-search baseline used to compare
+    against the RAG semantic retrieval system.
+
+Main responsibilities:
+    - Load HR source documents
+    - Load the fixed evaluation questions
+    - Match question keywords against document text
+    - Select the best matching document
+    - Save retrieval results for evaluation
+
+Input:
+    - HR documents stored in the HR_Documents folder
+    - Evaluation/questions.csv
+
+Output:
+    - Evaluation/keyword_results.csv
+
+Why this module exists:
+    This baseline provides a simple lexical-search comparison so the
+    project can measure whether embedding-based semantic retrieval
+    improves performance on paraphrased employee questions.
+"""
+
 import os
 import re
 import pandas as pd
 
-# Paths
-DOC_FOLDER = "../HR_Documents"
-QUESTION_FILE = "../Evaluation/questions.csv"
-OUTPUT_FILE = "../Evaluation/keyword_results.csv"
+
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+DOC_FOLDER = os.path.join(BASE_DIR, "HR_Documents")
+QUESTION_FILE = os.path.join(BASE_DIR, "Evaluation", "questions.csv")
+OUTPUT_FILE = os.path.join(BASE_DIR, "Evaluation", "keyword_results.csv")
 
 
 def load_documents():
     documents = []
 
-    for filename in os.listdir(DOC_FOLDER):
+    for filename in sorted(os.listdir(DOC_FOLDER)):
         if filename.endswith(".txt"):
             path = os.path.join(DOC_FOLDER, filename)
 
             with open(path, "r", encoding="utf-8") as file:
                 text = file.read()
 
-            documents.append({
-                "filename": filename,
-                "text": text
-            })
+            documents.append(
+                {
+                    "filename": filename,
+                    "text": text
+                }
+            )
 
     return documents
 
 
-def keyword_search(query, documents):
-    query_words = re.findall(r"\b\w+\b", query.lower())
+def tokenize(text):
+    return re.findall(r"\b[a-zA-Z]+\b", text.lower())
 
+
+def keyword_score(question, document_text):
+    question_words = set(tokenize(question))
+    document_words = tokenize(document_text)
+
+    score = 0
+
+    for word in question_words:
+        score += document_words.count(word)
+
+    return score
+
+
+def retrieve_document(question, documents):
     best_document = None
-    best_score = 0
+    best_score = -1
 
     for document in documents:
-        text = document["text"].lower()
-
-        score = 0
-
-        for word in query_words:
-            if word in text:
-                score += 1
+        score = keyword_score(
+            question,
+            document["text"]
+        )
 
         if score > best_score:
             best_score = score
@@ -48,40 +89,39 @@ def keyword_search(query, documents):
     return best_document, best_score
 
 
-# Load HR documents
-documents = load_documents()
+def main():
+    documents = load_documents()
+    questions = pd.read_csv(QUESTION_FILE)
 
-# Load the 40 fixed questions
-questions = pd.read_csv(QUESTION_FILE)
+    results = []
 
-results = []
+    for _, row in questions.iterrows():
+        document, score = retrieve_document(
+            row["question"],
+            documents
+        )
 
-for _, row in questions.iterrows():
-    question = row["question"]
+        results.append(
+            {
+                "id": row["id"],
+                "category": row["category"],
+                "question": row["question"],
+                "ground_truth": row["ground_truth"],
+                "keyword_document": document["filename"],
+                "keyword_score": score
+            }
+        )
 
-    result, score = keyword_search(question, documents)
+    result_df = pd.DataFrame(results)
+    result_df.to_csv(OUTPUT_FILE, index=False)
 
-    if result:
-        document_name = result["filename"]
-    else:
-        document_name = "No result"
+    print("Keyword search evaluation completed.")
+    print(f"Total questions: {len(result_df)}")
+    print(f"Results saved to: {OUTPUT_FILE}")
+    print()
+    print("First 5 results:")
+    print(result_df.head())
 
-    results.append({
-        "id": row["id"],
-        "category": row["category"],
-        "question": question,
-        "ground_truth": row["ground_truth"],
-        "keyword_document": document_name,
-        "keyword_score": score
-    })
 
-# Save results
-results_df = pd.DataFrame(results)
-results_df.to_csv(OUTPUT_FILE, index=False)
-
-print("Keyword search evaluation completed.")
-print(f"Total questions: {len(results_df)}")
-print(f"Results saved to: {OUTPUT_FILE}")
-
-print("\nFirst 5 results:")
-print(results_df.head())
+if __name__ == "__main__":
+    main()

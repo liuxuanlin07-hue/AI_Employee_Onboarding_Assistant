@@ -1,94 +1,71 @@
 # AI Employee Onboarding Assistant
 
-This project is a Retrieval-Augmented Generation (RAG) based HR onboarding assistant.
+## Project Overview
 
-The system allows new employees to ask questions in natural language about:
+The AI Employee Onboarding Assistant is a RAG-based chatbot designed to help new employees quickly find information about annual leave, employee benefits, and IT support.
 
-- Annual leave
-- Employee benefits
-- IT support
+Instead of searching through several HR documents or contacting HR for basic questions, employees can ask questions in natural language. The system retrieves the most relevant approved HR document and uses an LLM to generate a short answer based on that document.
 
-The assistant retrieves information from simulated HR documents, generates an answer using an LLM, and shows the source document.
+If the available documents do not contain enough information, the system does not guess. It asks the employee to contact Human HR.
 
-## Project Scope
+---
 
-The prototype covers three areas:
+## Persona
 
-1. Leave policies
-2. Employee benefits
-3. IT support
+### Primary User: New Employee
 
-The prototype does not perform HR transactions such as leave approval, payroll changes, or performance management.
+A new employee may need quick answers about:
 
-## System Architecture
+Annual leave
 
-Employee Question  
-→ Embedding  
-→ Vector Search using FAISS  
-→ Retrieve Relevant HR Document  
-→ LLM Generates Answer  
-→ Display Answer and Source
+Employee benefits
 
-If the available HR documents do not contain enough information, the system escalates the question to Human HR.
+Health screening
 
-## Technologies Used
+Medical insurance
 
-- Python
-- Streamlit
-- FAISS
-- OpenRouter API
-- OpenAI-compatible API
-- Pandas
-- NumPy
+Password reset
 
-## HR Knowledge Base
+Laptop support
 
-The prototype uses simulated HR documents:
+Software installation
 
-- Annual_Leave_Policy.txt
-- Employee_Benefits_Guide.txt
-- IT_Support_Guide.txt
+IT security
 
-## Evaluation
+### Secondary Users: HR and IT Support Teams
 
-A fixed set of 40 manually prepared questions was used for evaluation.
+HR and IT teams can use the assistant to reduce repeated basic questions and spend more time on complex employee issues.
 
-Results:
+---
 
-- Keyword Search Retrieval Accuracy: 92.5%
-- RAG Retrieval Accuracy: 100.0%
-- RAG Final Answer Score: 97.5%
+## Problem
 
-The evaluation uses:
+Company policies and support information may already exist in internal documents, but employees may not know:
 
-- Correct = 1
-- Partly Correct = 0.5
-- Incorrect = 0
+Which document contains the answer
 
-## Example
+Which keywords to search
 
-Question:
+How the company describes a policy
 
+For example, an employee may ask:
+
+> How much holiday can I take each year?
+
+while the company document uses the term:
+
+> annual leave
+
+A simple keyword search may therefore fail when different words have similar meanings.
+
+---
+
+## Input
+
+The main input is a natural-language employee question.
+
+Example:
+
+```text
 How much holiday can I take each year?
-
-Answer:
-
-You are entitled to 18 days of paid annual leave per year.
-
-Source:
-
-Annual_Leave_Policy.txt
-
-## Human Escalation
-
-If the system cannot find enough supporting information in the HR documents, it responds:
-
-"I cannot find enough information in the available HR documents. Please contact HR."
-
-## How to Run
-
-Install the required packages:
-
-```bash
-pip install openai streamlit pandas numpy faiss-cpu
 
